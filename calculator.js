@@ -3,6 +3,7 @@ let userClick = '';
 let partialCalc = '';
 let clickedValue = '';
 let clickedOperator = '';
+const storage = [];
 const displayMainText = document.querySelector('.display-main');
 const displayPartialText = document.querySelector('.display-partial');
 const numberButtons = document.querySelectorAll('.number-btn-div');
@@ -14,7 +15,6 @@ numberButtons.forEach(button => button.addEventListener('click', (event) => {
     userClick += button.textContent;
     displayMainText.textContent = userClick;
   }
-  console.log(userClick);
 }));
 
 operatorButtons.forEach(button => button.addEventListener('click', (event) => {
@@ -25,25 +25,23 @@ operatorButtons.forEach(button => button.addEventListener('click', (event) => {
     case 'Del': 
       delChar();
       break;
-    case '+':
-      storePartial(button.textContent);
+    default:
+      storage.length === 0 ? storePartial(button.textContent) : operatePartial(button.textContent);
       break;
-    case '-':
-      storePartial(button.textContent);
-      break;
-    case 'x':
-      storePartial(button.textContent);
-      break;
-    case '/':
-      storePartial(button.textContent);
-      break;
-  }
-  console.log(`userClick: ${userClick}, partialCalc: ${partialCalc}, clickedValue: ${clickedValue}, clickedOperator: ${clickedOperator}`);
+    }
 }));
 
 operateButton.addEventListener('click', (event) => {
-  displayPartialText.textContent = `${clickedValue} ${clickedOperator} ${userClick} =`;
-  displayMainText.textContent = operate(clickedOperator, parseInt (clickedValue), parseInt (userClick));
+  if (storage.length > 0 && userClick !== '') {
+    displayPartialText.textContent = `${clickedValue} ${clickedOperator} ${userClick} =`;
+    displayMainText.textContent = operate(clickedOperator, parseInt (clickedValue), parseInt (userClick));
+  } else if (storage.length > 0) {
+      displayPartialText.textContent = `${clickedValue} ${clickedOperator} ${clickedValue} =`;
+      storage[0].value = operate(clickedOperator, parseInt (clickedValue), parseInt (clickedValue));
+      displayMainText.textContent = storage[0].value;
+  } else {
+    displayPartialText.textContent = '0 =';
+  }
   clearValues();
 });
 
@@ -58,6 +56,7 @@ const clearValues = () => {
   partialCalc = '';
   clickedValue = '';
   clickedOperator = '';
+  storage.length = 0; // clear the array without loop, neat!
 }
 
 const delChar = () => {
@@ -67,8 +66,19 @@ const delChar = () => {
 
 const storePartial = (operator) => {
   clickedValue = userClick;
+  storage.push({'type': 'number', 'value': clickedValue});
   clickedOperator = operator;
+  storage.push({'type': 'operator', 'value': clickedOperator});
   displayPartialText.textContent = `${userClick} ${operator}`;
+  userClick = '';
+}
+
+const operatePartial = (operator) => {
+  storage[0].value = operate(storage[1].value, parseInt(storage[0].value), parseInt(userClick));
+  storage.pop();
+  storage.push({'type': 'operator', 'value': operator});
+  displayPartialText.textContent = `${storage[0].value} ${operator}`;
+  displayMainText.textContent = `${storage[0].value}`;
   userClick = '';
 }
 
