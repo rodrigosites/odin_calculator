@@ -1,0 +1,39 @@
+.container {
+  margin: 0.5%;
+  height: 500px;
+  width: 500px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+}
+
+.display-container {
+  text-align: right;
+  flex-basis: 20%;
+  font-size: 500%;
+}
+
+.buttons-container{
+  display: flex;
+  flex-direction: column;
+  justify-content: space-evenly;
+  flex-basis: 80%;
+}
+
+.buttons-row {
+  display: flex;
+  justify-content: space-evenly;
+  flex: auto;
+}
+
+.operator-btn-div, .number-btn-div {
+  border-style: solid;
+  border-width: 1px;
+  background-color: gray;
+  border: 1px;
+  border-style: solid;
+  border-radius: 10px;
+  border-color: white;
+  flex-basis: 25%;
+  text-align: center;
+}
