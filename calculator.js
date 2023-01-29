@@ -1,14 +1,13 @@
 // DOM control
 let userClick = '';
-let partialCalc = '';
 let clickedValue = '';
 let clickedOperator = '';
-const storage = [];
+const numberStack = [];
+const operatorStack = [];
 const displayMainText = document.querySelector('.display-main');
 const displayPartialText = document.querySelector('.display-partial');
 const numberButtons = document.querySelectorAll('.number-btn-div');
 const operatorButtons = document.querySelectorAll('.operator-btn-div');
-const operateButton = document.querySelector('.operate-btn-div');
 
 numberButtons.forEach(button => button.addEventListener('click', (event) => {
   if (userClick.length < 30) {
@@ -18,32 +17,40 @@ numberButtons.forEach(button => button.addEventListener('click', (event) => {
 }));
 
 operatorButtons.forEach(button => button.addEventListener('click', (event) => {
-  switch (button.textContent) {
+  clickedOperator = button.textContent;
+  switch (clickedOperator) {
     case 'C': 
       clearDisplay();
-      break;
+    break;
     case 'Del': 
       delChar();
-      break;
+    break;
+    case '=':
+      if (numberStack.length === 1 && userClick !== '') {
+        numberStack.push(userClick);
+        displayPartialText.textContent = `${numberStack[0]} ${operatorStack[0]} ${userClick} =`;
+        operateValues(operatorStack[0]);
+        clearValues();
+      } else if (numberStack.length === 1 && userClick === '') {
+          operatorStack.push(operatorStack[0]);
+          if (clickedValue !== '') {
+            numberStack.push(clickedValue);
+          } else {
+            numberStack.push(numberStack[0]);
+            clickedValue = numberStack[1];
+          }
+          displayPartialText.textContent = `${numberStack[0]} ${operatorStack[0]} ${clickedValue} =`;
+          operateValues(operatorStack[0]);
+      } else {
+        displayPartialText.textContent = '0 =';
+        clearValues();
+      }
+    break;
     default:
-      storage.length === 0 ? storePartial(button.textContent) : operatePartial(button.textContent);
-      break;
+      storeValue(clickedOperator);
+    break;
     }
 }));
-
-operateButton.addEventListener('click', (event) => {
-  if (storage.length > 0 && userClick !== '') {
-    displayPartialText.textContent = `${clickedValue} ${clickedOperator} ${userClick} =`;
-    displayMainText.textContent = operate(clickedOperator, parseInt (clickedValue), parseInt (userClick));
-  } else if (storage.length > 0) {
-      displayPartialText.textContent = `${clickedValue} ${clickedOperator} ${clickedValue} =`;
-      storage[0].value = operate(clickedOperator, parseInt (clickedValue), parseInt (clickedValue));
-      displayMainText.textContent = storage[0].value;
-  } else {
-    displayPartialText.textContent = '0 =';
-  }
-  clearValues();
-});
 
 const clearDisplay = () => {
   clearValues();
@@ -53,10 +60,9 @@ const clearDisplay = () => {
 
 const clearValues = () => {
   userClick = '';
-  partialCalc = '';
   clickedValue = '';
   clickedOperator = '';
-  storage.length = 0; // clear the array without loop, neat!
+  numberStack.length = 0; // clear the array without loop, neat!
 }
 
 const delChar = () => {
@@ -64,21 +70,24 @@ const delChar = () => {
   displayMainText.textContent = userClick;
 }
 
-const storePartial = (operator) => {
-  clickedValue = userClick;
-  storage.push({'type': 'number', 'value': clickedValue});
-  clickedOperator = operator;
-  storage.push({'type': 'operator', 'value': clickedOperator});
-  displayPartialText.textContent = `${userClick} ${operator}`;
+const storeValue = (operator) => {
+  if (userClick !== '') numberStack.push(userClick);
+  if (numberStack.length > 1) operateValues(operatorStack[0]);
+  if (operatorStack.length === 0) {
+    operatorStack.push(operator)
+  } else {
+    operatorStack[0] = operator;
+    clickedValue = numberStack[0];
+  }
+  displayPartialText.textContent = `${numberStack[0]} ${operatorStack[0]}`;
   userClick = '';
 }
 
-const operatePartial = (operator) => {
-  storage[0].value = operate(storage[1].value, parseInt(storage[0].value), parseInt(userClick));
-  storage.pop();
-  storage.push({'type': 'operator', 'value': operator});
-  displayPartialText.textContent = `${storage[0].value} ${operator}`;
-  displayMainText.textContent = `${storage[0].value}`;
+const operateValues = (operator) => {
+  numberStack[0] = operate(operator, parseInt(numberStack[0]), parseInt(numberStack[1]));
+  numberStack.pop();
+  operatorStack.shift();
+  displayMainText.textContent = `${numberStack[0]}`;
   userClick = '';
 }
 

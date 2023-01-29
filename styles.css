@@ -30,7 +30,7 @@
   flex: auto;
 }
 
-.operator-btn-div, .number-btn-div, .operate-btn-div {
+.operator-btn-div, .number-btn-div {
   border-style: solid;
   border-width: 1px;
   background-color: gray;
