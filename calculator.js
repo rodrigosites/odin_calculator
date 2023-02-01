@@ -17,6 +17,7 @@ numberButtons.forEach(button => button.addEventListener('click', (event) => {
 }));
 
 operatorButtons.forEach(button => button.addEventListener('click', (event) => {
+  if (userClick === '.') userClick = '0';
   clickedOperator = button.textContent;
   switch (clickedOperator) {
     case 'C': 
@@ -39,8 +40,8 @@ operatorButtons.forEach(button => button.addEventListener('click', (event) => {
           if (clickedOperator === '=' && operatorStack[0] !== '=') {
             operatorStack.push(clickedOperator)
           } else {
-          operatorStack[0] = clickedOperator;
-          clickedNumber = numberStack[0];
+            operatorStack[0] = clickedOperator;
+            clickedNumber = numberStack[0];
           }
         }
       }
